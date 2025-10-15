@@ -34,7 +34,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <div class="header-logo">SIGURU</div>
                     <div class="header-title">SISTEM INFORMASI KEHADIRAN GURU</div>
                 <?php else: ?>
-                    <img src="/siguruGemini/includes/logo.png" alt="Logo SIGURU" class="header-app-logo">
+                    <img src="/siguruGuru/includes/logo.png" alt="Logo SIGURU" class="header-app-logo">
                 <?php endif; ?>
             </div>
             <button id="theme-toggle-btn" class="theme-toggle">🌙</button>

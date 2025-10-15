@@ -4,7 +4,7 @@
 
     <div class="dashboard-card">
         <div class="logo-container">
-            <img src="Logo_SMK_Negeri_1_Kota_Bekasi.png" alt="Logo Sekolah">
+            <img src="siguruGuru/Logo_SMK_Negeri_1_Kota_Bekasi.png" alt="Logo Sekolah">
         </div>
         <div class="d-grid gap-2">
             <a href="login.php?role=super admin" class="btn role-button">SUPER ADMIN</a>

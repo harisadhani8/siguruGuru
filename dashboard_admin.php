@@ -6,9 +6,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 }
 require_once 'includes/db.php';
 
-// Ambil data absensi
-$absensi_terbaru = $conn->query("SELECT u.nama FROM absensi a JOIN users u ON a.user_id = u.id WHERE a.keterangan = 'Hadir' AND a.tanggal = CURDATE() LIMIT 3");
-$tidak_hadir = $conn->query("SELECT u.nama, a.keterangan FROM absensi a JOIN users u ON a.user_id = u.id WHERE a.keterangan != 'Hadir' AND a.tanggal = CURDATE() LIMIT 3");
+$total_guru_result = $conn->query("SELECT COUNT(id) as total FROM users WHERE role = 'guru'");
+$total_guru = $total_guru_result->fetch_assoc()['total'];
+
+$hadir_hari_ini_result = $conn->query("SELECT COUNT(id) as total FROM absensi WHERE keterangan = 'Hadir' AND tanggal = CURDATE()");
+$hadir_hari_ini = $hadir_hari_ini_result->fetch_assoc()['total'];
+
+$tidak_hadir_hari_ini_result = $conn->query("SELECT COUNT(id) as total FROM absensi WHERE keterangan != 'Hadir' AND tanggal = CURDATE()");
+$tidak_hadir_hari_ini = $tidak_hadir_hari_ini_result->fetch_assoc()['total'];
+
+$koreksi_pending_result = $conn->query("SELECT COUNT(id) as total FROM koreksi_absensi WHERE status = 'Diajukan'");
+$koreksi_pending = $koreksi_pending_result->fetch_assoc()['total'];
 ?>
 <?php require_once 'includes/header.php'; ?>
 
@@ -17,30 +25,11 @@ $tidak_hadir = $conn->query("SELECT u.nama, a.keterangan FROM absensi a JOIN use
     <h5 class="fw-bold mb-3 text-start">Dashboard</h5>
 </div>
 
-<div class="content-wrapper form-view" style="padding-top: 0;">
-    <div class="dashboard-card">
-        <h5>Absensi Terbaru</h5>
-        <?php if ($absensi_terbaru->num_rows > 0): ?>
-            <?php while ($row = $absensi_terbaru->fetch_assoc()): ?>
-                <p>[<?= htmlspecialchars($row['nama']); ?>]</p>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p>Belum ada yang absen hari ini.</p>
-        <?php endif; ?>
-    </div>
+<div class="content-wrapper full-width" style="padding-top: 0;">
 
-    <div class="dashboard-card">
-        <h5>Tidak Hadir Hari Ini</h5>
-        <?php if ($tidak_hadir->num_rows > 0): ?>
-            <?php while ($row = $tidak_hadir->fetch_assoc()): ?>
-                <p>[<?= htmlspecialchars($row['nama']); ?> - <?= htmlspecialchars($row['keterangan']); ?>]</p>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p>Semua guru hadir hari ini.</p>
-        <?php endif; ?>
-    </div>
 
     <div class="d-grid gap-2 mt-4">
+        <a href="laporan_absensi.php" class="btn btn-action role-button">Lihat Laporan Absensi</a>
         <a href="lihat_koreksi.php" class="btn btn-action role-button">Lihat Pengajuan Koreksi</a>
         <a href="logout.php" class="btn btn-logout role-button">LOGOUT</a>
     </div>
