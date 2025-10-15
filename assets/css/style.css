@@ -1,0 +1,222 @@
+:root {
+  --primary-blue: #3b729c;
+  --secondary-green: #6dd39a;
+  --primary-font: #333333;
+  --secondary-font: #888888;
+  --background: #f5f5f5;
+  --card-background: #ffffff;
+  --form-background: #ececec;
+  --border-color: #dddddd;
+  --shadow-color-light: rgba(0, 0, 0, 0.05);
+  --shadow-color-dark: rgba(0, 0, 0, 0.15);
+}
+html[data-theme="dark"] {
+  --primary-blue: #4a90e2;
+  --secondary-green: #50e3c2;
+  --primary-font: #eaeaea;
+  --secondary-font: #9b9b9b;
+  --background: #121212;
+  --card-background: #1e1e1e;
+  --form-background: #3a3a3a;
+  --border-color: #444444;
+  --shadow-color-light: rgba(255, 255, 255, 0.05);
+  --shadow-color-dark: rgba(0, 0, 0, 0.25);
+}
+
+body {
+  background-color: var(--background);
+  font-family: "Poppins", sans-serif;
+  color: var(--primary-font);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--primary-font);
+}
+p {
+  color: var(--secondary-font);
+}
+
+.mobile-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  width: 100%;
+  margin: auto;
+  padding: 0 25px 30px 25px;
+}
+.content-wrapper.form-view {
+  max-width: 420px;
+}
+.content-wrapper.full-width {
+  max-width: 1140px;
+}
+
+/* --- PERBAIKAN UTAMA UKURAN HEADER & LOGO --- */
+.header {
+  background-color: var(--primary-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px; /* KUNCI: Atur tinggi header menjadi tetap */
+  padding: 0 20px; /* Sesuaikan padding agar vertikal 0 */
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  height: 100%; /* Pastikan brand mengisi tinggi header */
+}
+.header-logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+.header-title {
+  font-size: 1rem;
+  font-weight: normal;
+  margin-left: 15px;
+}
+
+.header-app-logo {
+  height: 200px;
+  width: auto;
+  filter: invert(0);
+  transition: filter 0.3s ease;
+}
+html[data-theme="dark"] .header-app-logo {
+  filter: invert(1);
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.logo-container {
+  text-align: center;
+}
+.logo-container img {
+  max-width: 100px;
+  display: inline-block;
+}
+
+.dashboard-card {
+  background-color: var(--card-background);
+  border-radius: 20px;
+  padding: 25px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow-color-light);
+}
+.dashboard-card .logo-container {
+  margin-bottom: 30px;
+  padding: 0;
+  box-shadow: none;
+}
+.dashboard-card p {
+  color: var(--primary-font);
+}
+
+.role-button,
+.form-control,
+.btn-submit {
+  border-radius: 50px !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.role-button {
+  background-color: var(--card-background) !important;
+  color: var(--primary-font) !important;
+  box-shadow: 0 2px 8px var(--shadow-color-dark);
+}
+.form-control {
+  background-color: var(--form-background) !important;
+  text-align: center;
+  color: var(--primary-font) !important;
+}
+.form-control::placeholder {
+  color: var(--secondary-font);
+}
+.btn-submit {
+  background-color: var(--secondary-green) !important;
+  color: white !important;
+  box-shadow: 0 4px 10px rgba(109, 211, 154, 0.4);
+}
+.btn-logout,
+.btn-action {
+  background-color: var(--primary-blue) !important;
+  color: white !important;
+}
+
+footer {
+  padding: 20px 15px;
+  text-align: center;
+  color: var(--secondary-font);
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+/* Sisa kode lainnya tetap sama */
+.modal-content {
+  border-radius: 20px !important;
+  border: none !important;
+  text-align: center;
+  padding: 20px;
+  background-color: var(--card-background);
+  color: var(--primary-font);
+}
+.modal-icon {
+  font-size: 50px;
+  margin-bottom: 15px;
+}
+.modal-icon.success {
+  color: var(--secondary-green);
+}
+.modal-icon.error {
+  color: #e74c3c;
+}
+.modal-body p {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.form-select,
+.form-control[type="date"],
+textarea.form-control {
+  text-align: left;
+  color: var(--primary-font) !important;
+  max-width: 100%;
+}
+textarea.form-control {
+  border-radius: 20px !important;
+  min-height: 120px;
+}
+.table {
+  color: var(--primary-font);
+  border-color: var(--border-color);
+}
+html[data-theme="dark"] .table-dark {
+  --bs-table-bg: var(--primary-blue);
+  --bs-table-border-color: var(--border-color);
+}
+html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: var(--shadow-color-dark);
+}
