@@ -1,12 +1,12 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db_name = 'si_guru';
+$servername = "localhost";
+$username = "root";
+$password = ""; 
+$dbname = "si_guru";
 
-$conn = new mysqli($host, $user, $pass, $db_name);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
     die("Koneksi database gagal: " . $conn->connect_error);
 }
-?>
+$conn->set_charset("utf8mb4");

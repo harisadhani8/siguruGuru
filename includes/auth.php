@@ -1,50 +1,47 @@
 <?php
-session_start();
-require_once 'db.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-function redirect_with_error($role, $message)
+function redirect_user_to_dashboard()
 {
-    $_SESSION['login_error'] = $message;
-    header('Location: ../login.php?role=' . urlencode($role));
-    exit();
-}
-
-if (isset($_POST['login'])) {
-    $id = $_POST['id'];
-    $nama = $_POST['nama'];
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-
-    $stmt = $conn->prepare("SELECT * FROM users WHERE id = ? AND nama = ? AND role = ?");
-    $stmt->bind_param("iss", $id, $nama, $role);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows !== 1) {
-        redirect_with_error($role, "Kombinasi ID, Nama, dan Role tidak ditemukan.");
-    }
-
-    $user = $result->fetch_assoc();
-
-    if (password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_nama'] = $user['nama'];
-        $_SESSION['user_role'] = $user['role'];
-        $_SESSION['login_success'] = true;
-
-        // PETA REDIRECT (PERBAIKAN)
-        $redirect_map = [
-            'super admin' => '../dashboard_superadmin.php', // <-- TAMBAHKAN INI
-            'admin' => '../dashboard_admin.php',
-            'ketua kelas' => '../dashboard_ketua.php',
-            'guru' => '../absensi_guru.php',
-            // 'staff' sudah diganti menjadi 'super admin'
-        ];
-
-        header('Location: ' . ($redirect_map[$role] ?? '../index.php'));
+    if (isset($_SESSION['user_id'])) {
+        $role = $_SESSION['user_role'];
+        if ($role === 'super admin') header('Location: dashboard_superadmin.php');
+        elseif ($role === 'admin') header('Location: dashboard_admin.php');
+        elseif ($role === 'guru') header('Location: absensi_guru.php');
+        elseif ($role === 'ketua kelas') header('Location: dashboard_ketua.php');
+        else header('Location: logout.php'); 
         exit();
-    } else {
-        redirect_with_error($role, "Password yang Anda masukkan salah.");
     }
 }
-// Jika login gagal
+
+function auth_login()
+{
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: index.php?error=2');
+        exit();
+    }
+}
+
+function auth_role($role_dizinkan)
+{
+    auth_login();
+    $user_role = $_SESSION['user_role'] ?? '';
+
+    $is_authorized = false;
+
+    if (is_array($role_dizinkan)) {
+        if (in_array($user_role, $role_dizinkan)) {
+            $is_authorized = true;
+        }
+    } else {
+        if ($user_role === $role_dizinkan) {
+            $is_authorized = true;
+        }
+    }
+
+    if (!$is_authorized) {
+        redirect_user_to_dashboard();
+    }
+}

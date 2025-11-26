@@ -1,105 +1,127 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 'super admin'])) {
-    header('Location: index.php');
-    exit();
-}
+require_once 'includes/auth.php';
+auth_role(['super admin', 'admin']);
+$_SESSION['page_title'] = "Pengajuan Koreksi";
 require_once 'includes/db.php';
-$current_page = basename($_SERVER['PHP_SELF']);
 
-if (isset($_GET['aksi']) && isset($_GET['id'])) {
-    // ... (Logika PHP untuk 'setujui' dan 'tolak' tetap sama) ...
-    header('Location: lihat_koreksi.php');
-    exit();
+$notif_msg = '';
+$notif_type = '';
+if (isset($_GET['notif'])) {
+    if ($_GET['notif'] == 19) {
+        $notif_msg = "Aksi berhasil diproses.";
+        $notif_type = "success";
+    }
+    if ($_GET['notif'] == 20) {
+        $notif_msg = "Gagal: Alasan penolakan tidak boleh kosong.";
+        $notif_type = "danger";
+    }
+    if ($_GET['notif'] == 21) {
+        $notif_msg = "Error: Terjadi kesalahan database.";
+        $notif_type = "danger";
+    }
 }
 
-$query = "SELECT k.id, u.nama as nama_guru, a.tanggal, a.keterangan as ket_awal, k.alasan_koreksi, k.status 
-          FROM koreksi_absensi k
-          JOIN absensi a ON k.absensi_id = a.id
-          JOIN users u ON a.user_id = u.id
-          ORDER BY k.tanggal_pengajuan DESC";
-$result_koreksi = $conn->query($query);
+$sql = "SELECT k.*, u_guru.nama as nama_guru, u_ketua.nama as nama_ketua, 
+        (CASE t.nama_tingkat WHEN 'X' THEN '10' WHEN 'XI' THEN '11' WHEN 'XII' THEN '12' ELSE t.nama_tingkat END) AS nama_tingkat_numerik, 
+        ju.singkatan_jurusan, kls.rombel, m.nama_mapel, 
+        a.status as status_awal
+        FROM koreksi_absensi k
+        LEFT JOIN jadwal_mengajar j ON k.jadwal_id = j.id
+        LEFT JOIN users u_guru ON j.guru_nip = u_guru.nip
+        LEFT JOIN mata_pelajaran m ON j.mapel_id = m.id
+        LEFT JOIN users u_ketua ON k.diajukan_oleh_nisn = u_ketua.nisn
+        LEFT JOIN kelas kls ON j.kelas_id = kls.id
+        LEFT JOIN tingkat t ON kls.tingkat_id = t.id
+        LEFT JOIN jurusan ju ON kls.jurusan_id = ju.id
+        LEFT JOIN absensi_log a ON k.jadwal_id = a.jadwal_id AND k.tanggal = a.tanggal
+        ORDER BY k.status ASC, k.tanggal DESC";
+
+$result = $conn->query($sql);
+if (!$result) {
+    die("Error SQL: " . $conn->error);
+}
 ?>
-<?php require_once 'includes/header.php'; ?>
+<?php include 'includes/header.php'; ?>
 
-<div class="dashboard-layout">
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <img src="assets/logo.png" alt="SiGuru Logo" class="sidebar-logo">
-        </div>
-        <ul class="sidebar-menu">
-            <?php if ($_SESSION['user_role'] == 'super admin'): ?>
-                <li><a href="dashboard_superadmin.php">Dashboard Analitik</a></li>
-                <li><a href="manage_users.php">Kelola Pengguna</a></li>
-                <li><a href="laporan_absensi.php">Laporan Absensi</a></li>
-                <li><a href="lihat_koreksi.php" class="active">Pengajuan Koreksi</a></li>
-            <?php else: ?>
-                <li><a href="dashboard_admin.php">Dashboard Analitik</a></li>
-                <li><a href="laporan_absensi.php">Lihat Laporan Absensi</a></li>
-                <li><a href="lihat_koreksi.php" class="active">Lihat Pengajuan Koreksi</a></li>
-            <?php endif; ?>
-        </ul>
-        <div class="sidebar-footer">
-            <a href="logout.php" class="btn-logout-sidebar">LOGOUT</a>
-        </div>
-    </nav>
+<?php if (!empty($notif_msg)): ?>
+    <div class="notif notif-<?= $notif_type; ?> notif-autohide"><?= $notif_msg; ?></div>
+<?php endif; ?>
 
-    <div class="main-content-wrapper">
-        <header class="main-header">
-            <div class="header-title">Lihat Pengajuan Koreksi</div>
-            <div class="header-user">
-                <button id="theme-toggle-btn" class="theme-toggle">🌙</button>
-                <div class="profile-icon"><?= strtoupper(substr($_SESSION['user_nama'], 0, 1)); ?></div>
-                <span><?= htmlspecialchars($_SESSION['user_nama']); ?></span>
-            </div>
-        </header>
-
-        <main class="main-content-area">
-            <h5 class="content-title">LIHAT PENGAJUAN KOREKSI</h5>
-
-            <div class="table-responsive dashboard-card" style="text-align: left;">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-dark">
+<div class="card-ui">
+    <h4>Daftar Pengajuan Koreksi Absensi</h4>
+    <div style="overflow-x: auto; margin-top: 1rem;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Diajukan Oleh</th>
+                    <th>Tgl Koreksi</th>
+                    <th>Guru / Mapel</th>
+                    <th>Status Awal</th>
+                    <th>Diajukan Menjadi</th>
+                    <th>Alasan</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <th>Guru</th>
-                            <th>Tanggal</th>
-                            <th>Ket. Awal</th>
-                            <th>Alasan</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ($result_koreksi->num_rows > 0): ?>
-                            <?php while ($row = $result_koreksi->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($row['nama_guru']); ?></td>
-                                    <td><?= date('d M Y', strtotime($row['tanggal'])); ?></td>
-                                    <td><?= htmlspecialchars($row['ket_awal']); ?></td>
-                                    <td><?= htmlspecialchars($row['alasan_koreksi']); ?></td>
-                                    <td><span class="badge <?php if ($row['status'] == 'Disetujui') echo 'bg-success';
-                                                            elseif ($row['status'] == 'Ditolak') echo 'bg-danger';
-                                                            else echo 'bg-warning'; ?>"><?= htmlspecialchars($row['status']); ?></span></td>
-                                    <td>
-                                        <?php if ($row['status'] == 'Diajukan'): ?>
-                                            <a href="lihat_koreksi.php?aksi=setujui&id=<?= $row['id']; ?>" class="btn btn-sm btn-success">✓</a>
-                                            <a href="lihat_koreksi.php?aksi=tolak&id=<?= $row['id']; ?>" class="btn btn-sm btn-danger">✗</a>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="text-center">Belum ada pengajuan koreksi.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                            <td>
+                                <?= htmlspecialchars($row['nama_ketua'] ?? 'N/A'); ?><br>
+                                <small style="color: var(--text-light);"><?= htmlspecialchars($row['nama_tingkat_numerik'] . ' ' . $row['singkatan_jurusan'] . ' ' . $row['rombel']); ?></small>
+                            </td>
+                            <td><?= htmlspecialchars($row['tanggal']); ?></td>
+                            <td><?= htmlspecialchars($row['nama_guru'] ?? 'N/A'); ?><br>
+                                <small style="color: var(--text-light);"><?= htmlspecialchars($row['nama_mapel'] ?? 'N/A'); ?></small>
+                            </td>
+                            <td><?= htmlspecialchars($row['status_awal'] ?? 'Belum Absen'); ?></td>
+                            <td><?= htmlspecialchars($row['keterangan_baru']); ?></td>
+                            <td><?= htmlspecialchars($row['alasan']); ?></td>
+                            <td><?= htmlspecialchars($row['status']); ?></td>
+                            <td>
+                                <?php if ($row['status'] == 'Diajukan'): ?>
+                                    <a href="proses_koreksi.php?id=<?= $row['id']; ?>&status=Disetujui" class="btn btn-success" style="margin-bottom: 5px;">Setujui</a>
 
-            <footer>@2025 Mas Haris</footer>
-        </main>
+                                    <button class="btn btn-danger btn-tolak" data-id_koreksi="<?= $row['id']; ?>">Tolak</button>
+
+                                <?php else: ?>
+                                    <span class="btn btn-secondary">Diproses</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8" style="text-align: center;">Belum ada pengajuan koreksi.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const allBtnTolak = document.querySelectorAll('.btn-tolak');
+
+        allBtnTolak.forEach(button => {
+            button.addEventListener('click', function() {
+                const idKoreksi = this.getAttribute('data-id_koreksi');
+
+                const alasan = prompt("Harap masukkan alasan penolakan (wajib diisi):");
+
+                if (alasan === null) {
+                    return; 
+                }
+
+                if (alasan.trim() === "") {
+                    alert("Alasan penolakan tidak boleh kosong.");
+                } else {
+                    window.location.href = `proses_koreksi.php?id=${idKoreksi}&status=Ditolak&alasan_admin=${encodeURIComponent(alasan)}`;
+                }
+            });
+        });
+    });
+</script>
+<?php include 'includes/footer.php'; ?>

@@ -1,74 +1,77 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'super admin') {
-    header('Location: index.php');
-    exit();
-}
+require_once 'includes/auth.php';
+auth_role('super admin');
+$_SESSION['page_title'] = "Dashboard Super Admin";
 require_once 'includes/db.php';
-$current_page = basename($_SERVER['PHP_SELF']);
 
-$total_user_result = $conn->query("SELECT COUNT(id) as total FROM users");
-$total_user = $total_user_result->fetch_assoc()['total'];
-$hadir_hari_ini_result = $conn->query("SELECT COUNT(id) as total FROM absensi WHERE keterangan = 'Hadir' AND tanggal = CURDATE()");
-$hadir_hari_ini = $hadir_hari_ini_result->fetch_assoc()['total'];
-$tidak_hadir_hari_ini_result = $conn->query("SELECT COUNT(id) as total FROM absensi WHERE keterangan != 'Hadir' AND tanggal = CURDATE()");
-$tidak_hadir_hari_ini = $tidak_hadir_hari_ini_result->fetch_assoc()['total'];
-$koreksi_pending_result = $conn->query("SELECT COUNT(id) as total FROM koreksi_absensi WHERE status = 'Diajukan'");
-$koreksi_pending = $koreksi_pending_result->fetch_assoc()['total'];
+$tgl_ini = date('Y-m-d');
+$hari_ini_text = date('l'); 
+
+$sql_users = "SELECT COUNT(id) as total FROM users";
+$total_users = $conn->query($sql_users)->fetch_assoc()['total'] ?? 0;
+
+$sql_guru = "SELECT COUNT(id) as total FROM users WHERE role = 'guru' AND status = 'Aktif'";
+$total_guru = $conn->query($sql_guru)->fetch_assoc()['total'] ?? 0;
+
+$sql_hadir = "SELECT COUNT(DISTINCT guru_nip) as total 
+              FROM absensi_log 
+              WHERE tanggal = ? AND status IN ('Hadir', 'Terlambat', 'Selesai')";
+$stmt_hadir = $conn->prepare($sql_hadir);
+$stmt_hadir->bind_param("s", $tgl_ini);
+$stmt_hadir->execute();
+$guru_hadir = $stmt_hadir->get_result()->fetch_assoc()['total'] ?? 0;
+
+$sql_jadwal_hari_ini = "SELECT COUNT(DISTINCT guru_nip) as total 
+                        FROM jadwal_mengajar 
+                        WHERE hari = ?";
+$stmt_jadwal = $conn->prepare($sql_jadwal_hari_ini);
+$stmt_jadwal->bind_param("s", $hari_ini_text);
+$stmt_jadwal->execute();
+$total_guru_ada_jadwal = $stmt_jadwal->get_result()->fetch_assoc()['total'] ?? 0;
+
+$guru_tidak_hadir = max(0, $total_guru_ada_jadwal - $guru_hadir);
+
+$sql_koreksi = "SELECT COUNT(id) as total FROM koreksi_absensi WHERE status = 'Diajukan'";
+$koreksi_pending = $conn->query($sql_koreksi)->fetch_assoc()['total'] ?? 0;
 ?>
-<?php require_once 'includes/header.php'; ?>
 
-<div class="dashboard-layout">
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <img src="assets/logo.png" alt="SiGuru Logo" class="sidebar-logo">
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="dashboard_superadmin.php" class="<?= ($current_page == 'dashboard_superadmin.php') ? 'active' : ''; ?>">Dashboard Analitik</a></li>
-            <li><a href="manage_users.php" class="<?= ($current_page == 'manage_users.php') ? 'active' : ''; ?>">Kelola Pengguna</a></li>
-            <li><a href="laporan_absensi.php" class="<?= ($current_page == 'laporan_absensi.php') ? 'active' : ''; ?>">Laporan Absensi</a></li>
-            <li><a href="lihat_koreksi.php" class="<?= ($current_page == 'lihat_koreksi.php') ? 'active' : ''; ?>">Pengajuan Koreksi</a></li>
-        </ul>
-        <div class="sidebar-footer">
-            <a href="logout.php" class="btn-logout-sidebar">LOGOUT</a>
-        </div>
-    </nav>
+<?php include 'includes/header.php'; ?>
 
-    <div class="main-content-wrapper">
-        <header class="main-header">
-            <div class="header-title">Dashboard Super Admin</div>
-            <div class="header-user">
-                <button id="theme-toggle-btn" class="theme-toggle">🌙</button>
-                <div class="profile-icon"><?= strtoupper(substr($_SESSION['user_nama'], 0, 1)); ?></div>
-                <span><?= htmlspecialchars($_SESSION['user_nama']); ?></span>
-            </div>
-        </header>
+<div class="stat-container">
+    <div class="stat-card">
+        <h5>Total Pengguna</h5>
+        <span class="stat-number"><?= $total_users; ?></span>
+        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">Akun terdaftar</div>
+    </div>
 
-        <main class="main-content-area">
-            <h5 class="content-title">DASHBOARD ANALITIK</h5>
+    <div class="stat-card">
+        <h5>Total Guru Aktif</h5>
+        <span class="stat-number"><?= $total_guru; ?></span>
+        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">Data Master Guru</div>
+    </div>
 
-            <div class="dashboard-grid">
-                <div class="stat-card">
-                    <div class="stat-title">Guru Hadir Hari Ini</div>
-                    <div class="stat-value"><?= $hadir_hari_ini; ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Guru Tidak Hadir</div>
-                    <div class="stat-value"><?= $tidak_hadir_hari_ini; ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Total Pengguna</div>
-                    <div class="stat-value"><?= $total_user; ?></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Koreksi Pending</div>
-                    <div class="stat-value"><?= $koreksi_pending; ?></div>
-                </div>
-            </div>
+    <div class="stat-card" style="border-left: 5px solid var(--success);">
+        <h5>Guru Hadir Hari Ini</h5>
+        <span class="stat-number text-success"><?= $guru_hadir; ?></span>
+        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">Dari total jadwal hari ini</div>
+    </div>
 
-            <footer>@2025 Mas Haris</footer>
-        </main>
+    <div class="stat-card" style="border-left: 5px solid var(--warning);">
+        <h5>Koreksi Pending</h5>
+        <span class="stat-number text-warning"><?= $koreksi_pending; ?></span>
+        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 5px;">Perlu persetujuan</div>
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?>
+<div class="card-ui" style="margin-top: 2rem;">
+    <h4>Selamat Datang, Super Admin!</h4>
+    <p>Anda memiliki akses penuh ke sistem SiGuru. Gunakan menu di samping untuk:</p>
+    <ul style="margin-left: 1.5rem; color: var(--text-color);">
+        <li>Mengelola data master (Pengguna, Kelas, Mapel, Jadwal).</li>
+        <li>Mencatat izin dinas luar guru.</li>
+        <li>Melihat rekap laporan absensi harian/bulanan.</li>
+        <li>Memproses pengajuan koreksi dari Ketua Kelas.</li>
+    </ul>
+</div>
+
+<?php include 'includes/footer.php'; ?>
