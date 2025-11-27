@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 auth_role('super admin');
-$_SESSION['page_title'] = "Master Data Tingkat";
+$_SESSION['page_title'] = "Data Tingkat";
 require_once 'includes/db.php';
 
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {

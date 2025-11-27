@@ -46,31 +46,31 @@ if (!empty($user_foto) && file_exists('uploads/profil/' . $user_foto)) {
             <ul class="sidebar-menu">
                 <?php if ($user_role === 'super admin'): ?>
                     
-                    <li><a href="dashboard_superadmin.php" class="sidebar-link"><i class="fas fa-home me-2"></i>Dashboard</a></li>
-                    <li><a href="manage_users.php" class="sidebar-link"><i class="fas fa-users me-2"></i>Data Pengguna</a></li>
-                    <li><a href="manage_kelas.php" class="sidebar-link"><i class="fas fa-school me-2"></i>Data Kelas</a></li>
-                    <li><a href="manage_jurusan.php" class="sidebar-link"><i class="fas fa-graduation-cap me-2"></i>Data Jurusan</a></li>
-                    <li><a href="manage_mapel.php" class="sidebar-link"><i class="fas fa-book me-2"></i>Data Mapel</a></li>
-                    <li><a href="manage_jadwal.php" class="sidebar-link"><i class="fas fa-calendar-alt me-2"></i>Jadwal Mengajar</a></li>
-                    <li><a href="dinas_luar.php" class="sidebar-link"><i class="fas fa-briefcase me-2"></i>Input Dinas Luar</a></li>
-                    <li><a href="laporan_absensi.php" class="sidebar-link"><i class="fas fa-file-alt me-2"></i>Rekap Absensi</a></li>
-                    <li><a href="lihat_koreksi.php" class="sidebar-link"><i class="fas fa-check-double me-2"></i>Pengajuan Koreksi</a></li>
+                    <li><a href="dashboard_superadmin.php" class="sidebar-link">Dashboard</a></li>
+                    <li><a href="manage_users.php" class="sidebar-link">Data Pengguna</a></li>
+                    <li><a href="manage_kelas.php" class="sidebar-link">Data Kelas</a></li>
+                    <li><a href="manage_jurusan.php" class="sidebar-link">Data Jurusan</a></li>
+                    <li><a href="manage_mapel.php" class="sidebar-link">Data Mapel</a></li>
+                    <li><a href="manage_jadwal.php" class="sidebar-link">Jadwal Mengajar</a></li>
+                    <li><a href="dinas_luar.php" class="sidebar-link">Input Dinas Luar</a></li>
+                    <li><a href="laporan_absensi.php" class="sidebar-link">Rekap Absensi</a></li>
+                    <li><a href="lihat_koreksi.php" class="sidebar-link">Pengajuan Koreksi</a></li>
                 <?php endif; ?>
 
                 <?php if ($user_role === 'admin'): ?>
-                    <li><a href="dashboard_admin.php" class="sidebar-link"><i class="fas fa-home me-2"></i>Dashboard Admin</a></li>
-                    <li><a href="laporan_absensi.php" class="sidebar-link"><i class="fas fa-file-alt me-2"></i>Laporan Absensi</a></li>
-                    <li><a href="lihat_koreksi.php" class="sidebar-link"><i class="fas fa-check-double me-2"></i>Pengajuan Koreksi</a></li>
-                    <li><a href="absensi_guru.php" class="sidebar-link"><i class="fas fa-user-clock me-2"></i>Absensi (Piket)</a></li>
+                    <li><a href="dashboard_admin.php" class="sidebar-link">Dashboard Admin</a></li>
+                    <li><a href="laporan_absensi.php" class="sidebar-link">Laporan Absensi</a></li>
+                    <li><a href="lihat_koreksi.php" class="sidebar-link">Pengajuan Koreksi</a></li>
+                    <li><a href="absensi_guru.php" class="sidebar-link">Absensi (Piket)</a></li>
                 <?php endif; ?>
 
                 <?php if ($user_role === 'guru'): ?>
-                    <li><a href="absensi_guru.php" class="sidebar-link"><i class="fas fa-calendar-check me-2"></i>Home / Absensi</a></li>
+                    <li><a href="absensi_guru.php" class="sidebar-link">Home / Absensi</a></li>
                 <?php endif; ?>
 
                 <?php if ($user_role === 'ketua kelas'): ?>
-                    <li><a href="dashboard_ketua.php" class="sidebar-link"><i class="fas fa-chalkboard me-2"></i>Dashboard Kelas</a></li>
-                    <li><a href="form_koreksi.php" class="sidebar-link"><i class="fas fa-edit me-2"></i>Ajukan Koreksi</a></li>
+                    <li><a href="dashboard_ketua.php" class="sidebar-link">Dashboard Kelas</a></li>
+                    <li><a href="form_koreksi.php" class="sidebar-link">Ajukan Koreksi</a></li>
                 <?php endif; ?>
             </ul>
 
@@ -90,8 +90,6 @@ if (!empty($user_foto) && file_exists('uploads/profil/' . $user_foto)) {
 
                 <div class="header-user-info">
                     <span>Halo, <strong><?= htmlspecialchars($user_nama); ?></strong></span>
-
-                    <img src="<?= $foto_profil_path; ?>" alt="Foto" class="header-profile-pic">
 
                     <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
                         <span class="moon-icon"><i class="fas fa-moon"></i></span>

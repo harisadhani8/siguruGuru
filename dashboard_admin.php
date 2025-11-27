@@ -1,72 +1,92 @@
 <?php
 require_once 'includes/auth.php';
-auth_role('admin'); 
+auth_role('admin');
 $_SESSION['page_title'] = "Dashboard Admin";
 require_once 'includes/db.php';
 
-$tgl_hari_ini = date('Y-m-d');
-$sql_tidak_hadir = "SELECT u.nama, a.status, a.keterangan_izin 
-                    FROM absensi_log a
-                    JOIN users u ON a.guru_nip = u.nip
-                    WHERE a.tanggal = ? AND a.status IN ('Izin', 'Sakit', 'Absen', 'Dinas Luar')";
-$stmt_tidak_hadir = $conn->prepare($sql_tidak_hadir);
-$stmt_tidak_hadir->bind_param("s", $tgl_hari_ini);
-$stmt_tidak_hadir->execute();
-$result_tidak_hadir = $stmt_tidak_hadir->get_result();
+$tgl_ini = date('Y-m-d');
 
-// Stats
-$total_guru = $conn->query("SELECT COUNT(id) FROM users WHERE role='guru'")->fetch_row()[0];
-$total_hadir = $conn->query("SELECT COUNT(DISTINCT guru_nip) FROM absensi_log WHERE tanggal = '$tgl_hari_ini' AND status IN ('Hadir', 'Terlambat')")->fetch_row()[0];
-$total_absen = $result_tidak_hadir->num_rows;
+$sql_guru = "SELECT COUNT(id) as total FROM users WHERE role = 'guru' AND status = 'Aktif'";
+$total_guru = $conn->query($sql_guru)->fetch_assoc()['total'] ?? 0;
+
+$sql_hadir = "SELECT COUNT(id) as total 
+              FROM absensi_harian 
+              WHERE tanggal = ? AND status_kehadiran IN ('Hadir', 'Terlambat')";
+$stmt_hadir = $conn->prepare($sql_hadir);
+$stmt_hadir->bind_param("s", $tgl_ini);
+$stmt_hadir->execute();
+$guru_hadir = $stmt_hadir->get_result()->fetch_assoc()['total'] ?? 0;
+
+$guru_belum_hadir = max(0, $total_guru - $guru_hadir);
+
+$sql_koreksi = "SELECT COUNT(id) as total FROM koreksi_absensi WHERE status = 'Diajukan'";
+$koreksi_pending = $conn->query($sql_koreksi)->fetch_assoc()['total'] ?? 0;
+
+$sql_list_tdk = "SELECT u.nama, a.status_kehadiran, a.keterangan 
+                 FROM absensi_harian a
+                 JOIN users u ON a.guru_nip = u.nip
+                 WHERE a.tanggal = ? AND a.status_kehadiran IN ('Izin', 'Sakit', 'Dinas Luar')
+                 ORDER BY u.nama ASC";
+$stmt_list = $conn->prepare($sql_list_tdk);
+$stmt_list->bind_param("s", $tgl_ini);
+$stmt_list->execute();
+$result_tidak_hadir = $stmt_list->get_result();
 ?>
+
 <?php include 'includes/header.php'; ?>
 
-<?php if (isset($_GET['error']) && $_GET['error'] == 403) echo '<div class="notif notif-danger">Anda tidak punya hak akses.</div>'; ?>
+<div class="stat-container">
+    <div class="stat-card">
+        <h5>Total Guru</h5>
+        <span class="stat-number"><?= $total_guru; ?></span>
+    </div>
 
-<div class="card-ui">
-    <h4>Statistik Hari Ini (<?= date('d M Y'); ?>)</h4>
-    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-        <div class="card-ui" style="flex: 1; text-align: center;">
-            <div style="font-size: 2.5rem; font-weight: 700;"><?= $total_guru; ?></div>
-            <div>Total Guru</div>
-        </div>
-        <div class="card-ui" style="flex: 1; text-align: center; background-color: #d4edda;">
-            <div style="font-size: 2.5rem; font-weight: 700;"><?= $total_hadir; ?></div>
-            <div>Guru Hadir</div>
-        </div>
-        <div class="card-ui" style="flex: 1; text-align: center; background-color: #f8d7da;">
-            <div style="font-size: 2.5rem; font-weight: 700;"><?= $total_absen; ?></div>
-            <div>Guru Tidak Hadir</div>
-        </div>
+    <div class="stat-card" style="border-left: 5px solid var(--success);">
+        <h5>Guru Hadir</h5>
+        <span class="stat-number text-success"><?= $guru_hadir; ?></span>
+    </div>
+
+    <div class="stat-card" style="border-left: 5px solid var(--danger);">
+        <h5>Belum Hadir/Absen</h5>
+        <span class="stat-number text-danger"><?= $guru_belum_hadir; ?></span>
+    </div>
+
+    <div class="stat-card" style="border-left: 5px solid var(--warning);">
+        <h5>Koreksi Pending</h5>
+        <span class="stat-number text-warning"><?= $koreksi_pending; ?></span>
     </div>
 </div>
 
-<div class="card-ui">
-    <h4>Daftar Guru Tidak Hadir Hari Ini (Poin 17)</h4>
-    <table class="table" style="margin-top: 1rem;">
-        <thead>
-            <tr>
-                <th>Nama Guru</th>
-                <th>Status</th>
-                <th>Keterangan</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if ($result_tidak_hadir->num_rows > 0): ?>
-                <?php while ($row = $result_tidak_hadir->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['nama']); ?></td>
-                        <td><?= htmlspecialchars($row['status']); ?></td>
-                        <td><?= htmlspecialchars($row['keterangan_izin']); ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
+<div class="card-ui" style="margin-top: 2rem;">
+    <h4>Daftar Guru Tidak Hadir Hari Ini (Izin/Sakit)</h4>
+    <div class="table-responsive">
+        <table class="table" style="margin-top: 1rem;">
+            <thead>
                 <tr>
-                    <td colspan="3" style="text-align: center;">Semua guru hadir atau belum ada data.</td>
+                    <th>Nama Guru</th>
+                    <th>Status</th>
+                    <th>Keterangan</th>
                 </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php if ($result_tidak_hadir->num_rows > 0): ?>
+                    <?php while ($row = $result_tidak_hadir->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['nama']); ?></td>
+                            <td>
+                                <span class="badge bg-warning text-dark"><?= htmlspecialchars($row['status_kehadiran']); ?></span>
+                            </td>
+                            <td><?= htmlspecialchars($row['keterangan']); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="3" style="text-align: center;">Belum ada data guru izin/sakit hari ini.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <?php include 'includes/footer.php'; ?>

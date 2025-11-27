@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/auth.php';
 auth_role(['super admin', 'admin']);
-$_SESSION['page_title'] = "Master Data Pengguna";
+$_SESSION['page_title'] = "Data Pengguna";
 require_once 'includes/db.php';
 
 $notif_msg = '';
