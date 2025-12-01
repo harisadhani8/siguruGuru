@@ -1,18 +1,30 @@
 SET
   FOREIGN_KEY_CHECKS = 0;
+
 SET
   SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+
 START TRANSACTION;
+
 SET
   time_zone = "+07:00";
+
 DROP TABLE IF EXISTS `koreksi_absensi`;
+
 DROP TABLE IF EXISTS `absensi_log`;
+
 DROP TABLE IF EXISTS `absensi_harian`;
+
 DROP TABLE IF EXISTS `jadwal_mengajar`;
+
 DROP TABLE IF EXISTS `users`;
+
 DROP TABLE IF EXISTS `kelas`;
+
 DROP TABLE IF EXISTS `mata_pelajaran`;
+
 DROP TABLE IF EXISTS `jurusan`;
+
 DROP TABLE IF EXISTS `tingkat`;
 
 CREATE TABLE
@@ -56,8 +68,8 @@ CREATE TABLE
 INSERT INTO
   `kelas` (`id`, `tingkat_id`, `jurusan_id`, `rombel`)
 VALUES
-  (1, 2, 1, 'B'), 
-  (2, 2, 2, 'A'), 
+  (1, 2, 1, 'B'),
+  (2, 2, 2, 'A'),
   (3, 3, 3, 'B');
 
 CREATE TABLE
@@ -78,7 +90,7 @@ CREATE TABLE
     FOREIGN KEY (`kelas_id`) REFERENCES `kelas` (`id`) ON DELETE SET NULL
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
--- Password hash untuk '123' adalah: $2y$10$eHQcWh6WzABJAegTov5zWuiG9Yico.jqQEwdu2fTH0qF.l/W/HHrK
+-- Password hash '123' adalah: $2y$10$eHQcWh6WzABJAegTov5zWuiG9Yico.jqQEwdu2fTH0qF.l/W/HHrK
 INSERT INTO
   `users` (
     `id`,
@@ -192,7 +204,7 @@ CREATE TABLE
     `guru_nip` VARCHAR(18) NOT NULL,
     `kelas_id` INT NOT NULL,
     `mapel_id` INT NOT NULL,
-    `hari` VARCHAR(15) NOT NULL, -- Monday, Tuesday, etc.
+    `hari` VARCHAR(15) NOT NULL, 
     `jam_mulai` TIME NOT NULL,
     `jam_selesai` TIME NOT NULL,
     FOREIGN KEY (`guru_nip`) REFERENCES `users` (`nip`) ON DELETE CASCADE,
@@ -217,7 +229,7 @@ VALUES
     'Thursday',
     '07:30:00',
     '10:00:00'
-  ), -- Haris di XI TP A
+  ),
   (
     '694086036736682988',
     1,
@@ -225,7 +237,7 @@ VALUES
     'Thursday',
     '10:00:00',
     '12:00:00'
-  ), -- Teti di XI RPL B
+  ),
   (
     '985317202580583981',
     1,
