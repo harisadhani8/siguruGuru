@@ -12,7 +12,7 @@
   --success: #28a745;
   --danger: #dc3545;
   --sidebar-width: 250px;
-  --header-height: 70px;
+  --header-height: 60px;
 }
 
 body.dark-mode {
@@ -22,17 +22,15 @@ body.dark-mode {
   --text-color: #f1f1f1;
   --text-light: #aaa;
 }
-
 body {
   font-family: "Inter", sans-serif;
   background-color: var(--light-color);
   color: var(--text-color);
   margin: 0;
   padding: 0;
-  font-size: 15px;
+  font-size: 14px;
   transition: background-color 0.2s, color 0.2s;
 }
-
 .wrapper {
   display: flex;
 }
@@ -61,34 +59,30 @@ body {
   flex-shrink: 0;
 }
 .sidebar-logo {
-  height: 120px;
-  width: 120px;
+  height: 80px;
+  width: auto;
   object-fit: contain;
-  margin-right: 0;
   margin-bottom: 0.5rem;
 }
 .sidebar-logo.logo-fix {
   filter: invert(1) brightness(2);
 }
 .sidebar-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--white-color);
 }
-
 .sidebar-menu {
   flex-grow: 1;
   list-style: none;
   padding: 1rem 0;
   margin: 0;
-
   overflow-y: auto;
-  overflow-x: hidden;
 }
 .sidebar-menu a {
   display: block;
-  padding: 0.9rem 1.5rem;
-  color: rgba(255, 255, 255, 0.7);
+  padding: 0.7rem 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-weight: 500;
   border-left: 4px solid transparent;
@@ -101,15 +95,14 @@ body {
   border-left-color: var(--primary-color);
 }
 .sidebar-footer {
-  padding: 1.5rem;
+  padding: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  flex-shrink: 0; /* Pastikan footer tidak mengecil */
+  flex-shrink: 0;
 }
 .sidebar-footer .btn {
   width: 100%;
   box-sizing: border-box;
 }
-
 .main-content {
   margin-left: var(--sidebar-width);
   width: calc(100% - var(--sidebar-width));
@@ -129,36 +122,47 @@ body {
   position: sticky;
   top: 0;
   z-index: 900;
-  transition: background-color 0.2s, border-color 0.2s;
 }
 .header-left {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+.header-title-text {
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 .header-user-info {
   display: flex;
   align-items: center;
+  font-weight: 600;
+  gap: 10px;
 }
-
+.header-profile-pic {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 5px;
+  border: 2px solid var(--border-color);
+}
 .page-content {
   flex-grow: 1;
   padding: 1.5rem;
 }
 .footer-text {
   text-align: center;
-  padding: 1.5rem;
+  padding: 1rem;
   color: var(--text-light);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
-
 .theme-toggle {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  order: 3;
-  margin-left: 15px;
+  margin-left: 0;
 }
 body.dark-mode .theme-toggle .sun-icon {
   display: block;
@@ -172,30 +176,14 @@ body:not(.dark-mode) .theme-toggle .sun-icon {
 body:not(.dark-mode) .theme-toggle .moon-icon {
   display: block;
 }
-
-.header-user-info span {
-  font-weight: 600;
-  order: 1;
-}
-.header-profile-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 15px;
-  border: 2px solid var(--border-color);
-  order: 2;
-}
 .mobile-menu-toggle {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  margin-right: 0.5rem;
   display: none;
 }
-
 .card-ui {
   background-color: var(--white-color);
   border: 1px solid var(--border-color);
@@ -203,25 +191,58 @@ body:not(.dark-mode) .theme-toggle .moon-icon {
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s, border-color 0.2s;
+  overflow-x: auto;
 }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+.table th,
+.table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  vertical-align: middle;
+}
+.table thead th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+body.dark-mode .table th {
+  background-color: #3a3a3a;
+  color: #e1e1e1;
+}
+body.dark-mode .table td {
+  border-color: #505050;
+}
+
 .btn {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
   border: 1px solid transparent;
+  line-height: 1.2;
+}
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
 }
 .btn-primary {
   background-color: var(--primary-color);
   color: var(--white-color);
   border-color: var(--primary-color);
-}
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
 }
 .btn-success {
   background-color: var(--success);
@@ -238,47 +259,31 @@ body:not(.dark-mode) .theme-toggle .moon-icon {
   color: var(--white-color);
   border-color: var(--text-light);
 }
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.table th,
-.table td {
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  text-align: left;
-  vertical-align: top;
-}
-.table thead th {
-  background-color: var(--light-color);
-  font-weight: 600;
-}
-
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 .form-label {
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   display: block;
+  font-size: 0.9rem;
 }
 .form-control,
 .form-select {
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 5px;
   font-family: "Inter", sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   box-sizing: border-box;
   background-color: var(--white-color);
   color: var(--text-color);
 }
 .form-text {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-light);
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
 }
 
 .login-wrapper {
@@ -287,23 +292,25 @@ body:not(.dark-mode) .theme-toggle .moon-icon {
   align-items: center;
   min-height: 100vh;
   background-color: var(--light-color);
+  padding: 1rem;
 }
 .login-box {
   width: 100%;
-  max-width: 400px;
+  max-width: 350px;
   padding: 2rem;
+  position: relative;
 }
 .login-logo {
   display: block;
-  margin: 0 auto 1.5rem auto;
-  height: 200px;
+  margin: 0 auto 1rem auto;
+  height: 100px;
+  object-fit: contain;
 }
-
 .notif {
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
   border: 1px solid transparent;
 }
 .notif-success {
@@ -321,10 +328,37 @@ body:not(.dark-mode) .theme-toggle .moon-icon {
   border-color: #ffeeba;
   color: #856404;
 }
+.stat-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.stat-card {
+  background-color: var(--white-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s;
+}
+.stat-card h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+.stat-card .stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
 
+/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
+    width: 80%;
+    max-width: 300px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   }
   .sidebar.active {
     transform: translateX(0);
@@ -336,28 +370,28 @@ body:not(.dark-mode) .theme-toggle .moon-icon {
   .mobile-menu-toggle {
     display: block;
   }
-}
-
-.stat-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-.stat-card {
-  background-color: var(--white-color);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s, border-color 0.2s;
-}
-.stat-card h5 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-  color: var(--text-light);
-}
-.stat-card .stat-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-color);
+  .header {
+    padding: 0 1rem;
+  }
+  .page-content {
+    padding: 1rem;
+  }
+  .stat-container {
+    grid-template-columns: 1fr;
+  }
+  .header-title-text {
+    display: none;
+  }
+  .header-user-info span {
+    font-size: 0.85rem;
+    display: inline-block;
+  }
+  .header-user-info span strong {
+    font-weight: 600;
+  }
+  .header-profile-pic {
+    width: 30px;
+    height: 30px;
+    margin-left: 8px;
+  }
 }

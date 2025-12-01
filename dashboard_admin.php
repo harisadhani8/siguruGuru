@@ -6,9 +6,11 @@ require_once 'includes/db.php';
 
 $tgl_ini = date('Y-m-d');
 
+// Hitung Guru
 $sql_guru = "SELECT COUNT(id) as total FROM users WHERE role = 'guru' AND status = 'Aktif'";
 $total_guru = $conn->query($sql_guru)->fetch_assoc()['total'] ?? 0;
 
+// Guru Hadir (absensi_harian)
 $sql_hadir = "SELECT COUNT(id) as total 
               FROM absensi_harian 
               WHERE tanggal = ? AND status_kehadiran IN ('Hadir', 'Terlambat')";
@@ -17,11 +19,14 @@ $stmt_hadir->bind_param("s", $tgl_ini);
 $stmt_hadir->execute();
 $guru_hadir = $stmt_hadir->get_result()->fetch_assoc()['total'] ?? 0;
 
+// Guru Belum Hadir
 $guru_belum_hadir = max(0, $total_guru - $guru_hadir);
 
+// Koreksi Pending
 $sql_koreksi = "SELECT COUNT(id) as total FROM koreksi_absensi WHERE status = 'Diajukan'";
 $koreksi_pending = $conn->query($sql_koreksi)->fetch_assoc()['total'] ?? 0;
 
+// Data Guru Tidak Hadir (Izin/Sakit/Dinas)
 $sql_list_tdk = "SELECT u.nama, a.status_kehadiran, a.keterangan 
                  FROM absensi_harian a
                  JOIN users u ON a.guru_nip = u.nip
@@ -32,8 +37,17 @@ $stmt_list->bind_param("s", $tgl_ini);
 $stmt_list->execute();
 $result_tidak_hadir = $stmt_list->get_result();
 ?>
-
+<meta http-equiv="refresh" content="30">
 <?php include 'includes/header.php'; ?>
+
+<div class="card-ui" style="margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h4 style="margin: 0;">Statistik Ringkas</h4>
+        <a href="export_dashboard.php" class="btn btn-success" style="display: flex; align-items: center; gap: 8px;">
+            Export Data
+        </a>
+    </div>
+</div>
 
 <div class="stat-container">
     <div class="stat-card">

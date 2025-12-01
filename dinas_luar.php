@@ -1,20 +1,18 @@
 <?php
 require_once 'includes/auth.php';
-auth_role('super admin'); // Hanya Super Admin
+auth_role('super admin'); 
 $_SESSION['page_title'] = "Input Dinas Luar";
 require_once 'includes/db.php';
 
 $notif_msg = '';
 $notif_type = '';
 
-// Logika Poin 5
 if (isset($_POST['submit_dinas_luar'])) {
     $guru_nip = $_POST['guru_nip'];
     $tanggal = $_POST['tanggal'];
     $keterangan = $_POST['keterangan_izin'];
     $file_bukti_nama = '';
 
-    // Logika Upload File
     if (isset($_FILES['file_bukti']) && $_FILES['file_bukti']['error'] == 0) {
         $target_dir = "uploads/surat_tugas/";
         if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
@@ -59,7 +57,7 @@ $result_guru = $conn->query("SELECT nip, nama, role_guru FROM users WHERE role =
 <?php endif; ?>
 
 <div class="card-ui" style="max-width: 600px; margin: 0 auto;">
-    <h4>Input Keterangan Dinas Luar (Poin 5)</h4>
+    <h4>Input Keterangan Dinas Luar</h4>
     <p>Gunakan form ini untuk mencatat guru yang sedang Dinas Luar (Wajib dengan Surat Tugas).</p>
 
     <form method="POST" enctype="multipart/form-data">

@@ -3,7 +3,6 @@ require_once 'includes/auth.php';
 auth_role('ketua kelas');
 require_once 'includes/db.php';
 
-// Pastikan kelas_id ada di session
 if (empty($_SESSION['kelas_id'])) {
     $_SESSION['page_title'] = "Error";
     include 'includes/header.php';
@@ -89,5 +88,5 @@ $result = $stmt->get_result();
         </tbody>
     </table>
 </div>
-
+<meta http-equiv="refresh" content="20">
 <?php include 'includes/footer.php'; ?>

@@ -1,6 +1,6 @@
 <?php
 require_once 'includes/auth.php';
-auth_role(['guru', 'admin']);
+auth_role(['guru']);
 $_SESSION['page_title'] = "Home Absensi Guru";
 require_once 'includes/db.php';
 

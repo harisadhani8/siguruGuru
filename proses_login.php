@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/auth.php';
-cegah_login_ganda(); // Poin 8
+cegah_login_ganda();
+
 require_once 'includes/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -12,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $sql = "SELECT * FROM users WHERE (nip = ? OR nisn = ?)";
+    $sql = "SELECT * FROM users WHERE (nip = ? OR nisn = ?) AND status = 'Aktif'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $identifier, $identifier);
     $stmt->execute();
@@ -20,11 +21,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
+
         if (password_verify($password, $user['password'])) {
+
             if ($user['status'] === 'Non-Aktif') {
                 header('Location: index.php?error=3');
                 exit();
             }
+
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nama'] = $user['nama'];
             $_SESSION['user_role'] = $user['role'];
@@ -32,7 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['user_nisn'] = $user['nisn'];
             $_SESSION['kelas_id'] = $user['kelas_id'];
 
-            cegah_login_ganda(); 
+            $_SESSION['user_foto'] = $user['foto'];
+            cegah_login_ganda();
         } else {
             header('Location: index.php?error=1');
             exit();
@@ -41,4 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header('Location: index.php?error=1');
         exit();
     }
+} else {
+    header('Location: index.php');
+    exit();
 }
