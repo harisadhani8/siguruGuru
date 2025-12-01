@@ -352,7 +352,6 @@ body.dark-mode .table td {
   color: var(--text-color);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
